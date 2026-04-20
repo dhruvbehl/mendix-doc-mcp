@@ -55,28 +55,51 @@ _DEFAULT_REPO = _cache_dir() / "mendix-docs-repo"
 # Auto-build: clone + index if DB is missing or stale
 # ---------------------------------------------------------------------------
 
+_STALE_DAYS = 7
+
+
+def _repo_is_stale(repo_path: Path) -> bool:
+    """Check if the local repo clone is older than _STALE_DAYS."""
+    import time
+    git_dir = repo_path / ".git"
+    if not git_dir.exists():
+        return True
+    fetch_head = git_dir / "FETCH_HEAD"
+    ref_file = fetch_head if fetch_head.exists() else git_dir / "HEAD"
+    age_days = (time.time() - ref_file.stat().st_mtime) / 86400
+    return age_days > _STALE_DAYS
+
+
 def _ensure_index(db_path: Path, repo_path: Path) -> None:
-    """Clone the mendix/docs repo and build the FTS5 index if the DB doesn't exist."""
-    if db_path.exists():
-        return
-
-    logger.info("No index found at %s — building from mendix/docs repo...", db_path)
-    print(
-        "mendix-doc-mcp: First run — cloning Mendix docs and building search index. "
-        "This takes about 70 seconds...",
-        file=sys.stderr,
-    )
-
+    """Clone + build if DB missing. Pull + rebuild if repo stale (>7 days)."""
     from src.indexer.clone import sync_repo
     from src.indexer.builder import build_index
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
     repo_path.parent.mkdir(parents=True, exist_ok=True)
 
-    sync_repo(repo_path)
-    count = build_index(repo_path, db_path)
+    if not db_path.exists():
+        logger.info("No index found — building from mendix/docs repo...")
+        print(
+            "mendix-doc-mcp: First run — cloning Mendix docs and building search index. "
+            "This takes about 70 seconds...",
+            file=sys.stderr,
+        )
+        sync_repo(repo_path)
+        count = build_index(repo_path, db_path)
+        print(f"mendix-doc-mcp: Index ready — {count} pages indexed.", file=sys.stderr)
+        return
 
-    print(f"mendix-doc-mcp: Index ready — {count} pages indexed.", file=sys.stderr)
+    if _repo_is_stale(repo_path):
+        logger.info("Repo older than %d days — checking for updates...", _STALE_DAYS)
+        changed = sync_repo(repo_path)
+        if changed:
+            logger.info("%d files changed — rebuilding index...", len(changed))
+            print(f"mendix-doc-mcp: Docs updated, rebuilding index...", file=sys.stderr)
+            count = build_index(repo_path, db_path)
+            print(f"mendix-doc-mcp: Index refreshed — {count} pages.", file=sys.stderr)
+        else:
+            logger.info("No changes. Index is current.")
 
 
 # ---------------------------------------------------------------------------

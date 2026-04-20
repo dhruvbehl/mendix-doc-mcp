@@ -53,21 +53,24 @@ def sync_repo(repo_path: Path) -> list[str]:
     repo = Repo(str(repo_path))
     old_head = repo.head.commit.hexsha
 
+    # Shallow repos need fetch + reset instead of pull
     origin = repo.remotes.origin
-    origin.pull()
+    origin.fetch(depth=1)
 
-    new_head = repo.head.commit.hexsha
-    if old_head == new_head:
+    remote_head = origin.refs[REPO_BRANCH].commit.hexsha
+    if old_head == remote_head:
         logger.info("Already up to date (HEAD=%s).", old_head[:12])
         return []
 
-    logger.info("Updated %s -> %s", old_head[:12], new_head[:12])
+    # Reset to fetched HEAD (works with shallow clones)
+    repo.head.reset(remote_head, index=True, working_tree=True)
+    logger.info("Updated %s -> %s", old_head[:12], remote_head[:12])
 
     # Determine which Markdown files under CONTENT_ROOT changed
     diff_output = repo.git.diff(
         "--name-only",
         old_head,
-        new_head,
+        remote_head,
         "--",
         CONTENT_ROOT,
     )
