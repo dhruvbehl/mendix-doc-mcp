@@ -1,0 +1,41 @@
+{
+  "family": "mendix-doc-mcp",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "mcp-server",
+      "image": "<account>.dkr.ecr.eu-central-1.amazonaws.com/mendix-doc-mcp:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mendix-doc-mcp",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "mcp"
+        }
+      },
+      "environment": [
+        { "name": "MCP_TRANSPORT", "value": "streamable-http" },
+        { "name": "MCP_PORT", "value": "8080" },
+        { "name": "MENDIX_DOCS_DB", "value": "/app/data/mendix-docs.db" }
+      ]
+    }
+  ]
+}
