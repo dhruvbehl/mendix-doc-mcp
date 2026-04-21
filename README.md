@@ -98,4 +98,4 @@ pytest
 
 ## License
 
-MIT. Mendix documentation content is [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) by Mendix.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details. Mendix documentation content is [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) by Mendix.
