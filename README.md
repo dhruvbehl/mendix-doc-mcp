@@ -4,6 +4,28 @@ MCP server that provides full-text search over 4,000+ [Mendix documentation](htt
 
 Version-aware search across Studio Pro 8–11, powered by SQLite FTS5 with BM25 ranking. Auto-builds the index on first run — no setup required.
 
+## Prerequisites
+
+This server is distributed via [PyPI](https://pypi.org/project/mendix-doc-mcp/) and runs using `uvx` (from [uv](https://docs.astral.sh/uv/)). Install `uv` first if you don't have it:
+
+**macOS / Linux:**
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows:**
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Verify it works:
+
+```bash
+uvx --version
+```
+
 ## Quick Start
 
 Add to your MCP client config:
