@@ -6,7 +6,9 @@ Version-aware search across Studio Pro 8–11, powered by SQLite FTS5 with BM25 
 
 ## Prerequisites
 
-This server is distributed via [PyPI](https://pypi.org/project/mendix-doc-mcp/) and runs using `uvx` (from [uv](https://docs.astral.sh/uv/)). Install `uv` first if you don't have it:
+You'll need an MCP-compatible client (e.g. Claude Code, Claude Desktop, Cursor, VS Code) and `uvx` (from [uv](https://docs.astral.sh/uv/)). No Python install required — `uv` manages that automatically.
+
+Install `uv` if you don't have it:
 
 **macOS / Linux:**
 
