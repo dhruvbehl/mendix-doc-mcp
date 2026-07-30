@@ -40,7 +40,11 @@ Add to your MCP client config:
     "mendix-docs": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["mendix-doc-mcp"]
+      "args": [
+        "--with",
+        "mcp<2",
+        "mendix-doc-mcp"
+        ]
     }
   }
 }
@@ -53,7 +57,11 @@ Add to your MCP client config:
   "mcpServers": {
     "mendix-docs": {
       "command": "uvx",
-      "args": ["mendix-doc-mcp"]
+      "args": [
+        "--with",
+        "mcp<2",
+        "mendix-doc-mcp"
+        ]
     }
   }
 }
@@ -65,7 +73,11 @@ Add to your MCP client config:
 {
   "mendix-docs": {
     "command": "uvx",
-    "args": ["mendix-doc-mcp"]
+    "args": [
+      "--with",
+      "mcp<2",
+      "mendix-doc-mcp"
+      ]
   }
 }
 ```
